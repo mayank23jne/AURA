@@ -1,72 +1,72 @@
 # AURA Agentic Platform Dependencies
 
 # Core LLM and Agent Framework
-langchain>=0.1.0,<0.2.0
-langchain-core>=0.1.0,<0.2.0
-langchain-openai>=0.1.0,<0.2.0
-langchain-anthropic>=0.1.0,<0.2.0
-langgraph>=0.0.20,<0.1.0
-langchain-community>=0.0.20,<0.2.0
+langchain
+langchain-core
+langchain-openai
+langchain-anthropic
+langgraph
+langchain-community
 
 # Vector Database and Knowledge Base
-chromadb>=0.4.22
+chromadb
 
 # Message Queue and Event Streaming (Redis for optional caching)
-redis>=5.0.0
+redis
 
 # API and Web Framework
-fastapi>=0.109.0
-uvicorn>=0.27.0
-websockets>=12.0
-python-multipart>=0.0.6
+fastapi
+uvicorn
+websockets
+python-multipart
 
 # Database
-sqlalchemy>=2.0.25
-mysql-connector-python>=8.0.0
-alembic>=1.13.1
+sqlalchemy
+mysql-connector-python
+alembic
 pymysql
 
 # Machine Learning and Data Processing
-numpy>=1.26.0
-pandas>=2.1.0
-scikit-learn>=1.4.0
+numpy
+pandas
+scikit-learn
 # torch is installed separately in Dockerfile with CPU-only version
 
 # Monitoring and Observability
-prometheus-client>=0.19.0
-opentelemetry-api>=1.22.0
-opentelemetry-sdk>=1.22.0
-structlog>=24.1.0
+prometheus-client
+opentelemetry-api
+opentelemetry-sdk
+structlog
 
 # Utilities
-pydantic>=2.5.0
-pydantic-settings>=2.1.0
-python-dotenv>=1.0.0
-httpx>=0.26.0
-tenacity>=8.2.0
-cachetools>=5.3.0
+pydantic
+pydantic-settings
+python-dotenv
+httpx
+tenacity
+cachetools
 
 # Web Dashboard
-streamlit>=1.31.0
-plotly>=5.18.0
+streamlit
+plotly
 
 # PDF Generation
-reportlab>=4.0.0
+reportlab
 
 # Excel file support
-openpyxl>=3.1.0
+openpyxl
 
 # AI Red-Teaming Frameworks
-pyrit>=0.5.0
-garak>=0.13.0
+pyrit
+garak
 
 # Testing
-pytest>=7.4.0
-pytest-asyncio>=0.23.0
-pytest-cov>=4.1.0
+pytest
+pytest-asyncio
+pytest-cov
 
 # Development
-black>=24.1.0
-ruff>=0.1.0
-mypy>=1.8.0
+black
+ruff
+mypy
 
