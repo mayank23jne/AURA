@@ -136,6 +136,7 @@ class PolicyDefinition(BaseModel):
     description: str
     category: str
     severity: str
+    package_id: Optional[str] = None
     rules: List[Dict[str, Any]] = Field(default_factory=list)
     test_specifications: List[Dict[str, Any]] = Field(default_factory=list)
     regulatory_references: List[str] = Field(default_factory=list)

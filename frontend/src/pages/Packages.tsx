@@ -42,7 +42,7 @@ const Packages: React.FC = () => {
 
     // Create Modal State
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
-    const [newPackage, setNewPackage] = useState({ name: '', description: '' });
+    const [newPackage, setNewPackage] = useState({id:'', name: '', description: '' });
 
     // Edit Modal State
     const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -72,12 +72,12 @@ const Packages: React.FC = () => {
 
     // Create Handler
     const handleCreate = async () => {
-        if ( !newPackage.name) return;
+        if (!newPackage.id && !newPackage.name) return;
         setActionLoading(true);
         try {
             await api.createPackage(newPackage);
             setCreateDialogOpen(false);
-            setNewPackage({ name: '', description: '' });
+            setNewPackage({id: '', name: '', description: '' });
             fetchPackages();
         } catch (error) {
             console.error('Error creating package:', error);
@@ -138,11 +138,12 @@ const Packages: React.FC = () => {
 
     return (
         <Box sx={{
+            
             mx: -2,
             mb: -2,
             width: 'calc(100% + 32px)',
             minHeight: '100%',
-            overflowX: 'hidden',
+            // overflowX: 'hidden',
             bgcolor: '#fbfbfb',
             display: 'flex',
             flexDirection: 'column',
@@ -303,15 +304,15 @@ const Packages: React.FC = () => {
                 <DialogTitle sx={{ borderBottom: '1px solid #E8E8E8' }}>Create New Package</DialogTitle>
                 <DialogContent sx={{ pt: 3 }}>
                     <Grid container spacing={3} sx={{ mt: 0 }}>
-                        {/* <Grid item xs={12}>
+                         <Grid size={{ xs: 12}}>
                             <Typography sx={{ mb: 1, fontWeight: 500, fontSize: '0.9rem' }}>Package ID</Typography>
                             <TextField
                                 fullWidth size="small" placeholder="e.g., finance-audit-pack"
                                 value={newPackage.id}
                                 onChange={(e) => setNewPackage({ ...newPackage, id: e.target.value })}
                             />
-                        </Grid> */}
-                        <Grid item xs={12}>
+                        </Grid> 
+                        <Grid size={{ xs: 12}}>
                             <Typography sx={{ mb: 1, fontWeight: 500, fontSize: '0.9rem' }}>Package Name</Typography>
                             <TextField
                                 fullWidth size="small" placeholder="Display Name"
@@ -319,7 +320,7 @@ const Packages: React.FC = () => {
                                 onChange={(e) => setNewPackage({ ...newPackage, name: e.target.value })}
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12}}>
                             <Typography sx={{ mb: 1, fontWeight: 500, fontSize: '0.9rem' }}>Description</Typography>
                             <TextField
                                 fullWidth multiline rows={3} size="small" placeholder="Describe the purpose of this package"
@@ -347,7 +348,7 @@ const Packages: React.FC = () => {
                 <DialogTitle sx={{ borderBottom: '1px solid #E8E8E8' }}>Edit Package</DialogTitle>
                 <DialogContent sx={{ pt: 3 }}>
                     <Grid container spacing={3} sx={{ mt: 0 }}>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12}}>
                             <Typography sx={{ mb: 1, fontWeight: 500, fontSize: '0.9rem' }}>Package Name</Typography>
                             <TextField
                                 fullWidth size="small"
@@ -355,7 +356,7 @@ const Packages: React.FC = () => {
                                 onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12}}>
                             <Typography sx={{ mb: 1, fontWeight: 500, fontSize: '0.9rem' }}>Description</Typography>
                             <TextField
                                 fullWidth multiline rows={3} size="small"
