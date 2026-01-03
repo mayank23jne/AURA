@@ -35,9 +35,11 @@ import CodeIcon from '@mui/icons-material/CodeOutlined';
 import DescriptionIcon from '@mui/icons-material/DescriptionOutlined';
 import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import CloseIcon from '@mui/icons-material/Close';
+import RefreshOutlined from '@mui/icons-material/RefreshOutlined';
 import { api } from '../api/client';
 import { alpha } from '@mui/material/styles';
-import type { Policy, Recommendation } from '../Types';
+import type { Policy, Recommendation, Audit } from '../Types';
+import { format } from 'date-fns';
 
 const steps = ['Select Model', 'Choose Framework', 'Select Compliance', 'Internal Controls', 'Audit Results'];
 
@@ -80,6 +82,24 @@ const Audits: React.FC = () => {
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [reportTab, setReportTab] = useState(0);
     const [rawModalOpen, setRawModalOpen] = useState(false);
+
+    // Audit History State
+    const [audits, setAudits] = useState<Audit[]>([]);
+    const [historyLoading, setHistoryLoading] = useState(false);
+
+    const fetchAudits = async () => {
+        setHistoryLoading(true);
+        try {
+            const response = await api.getAudits();
+            if (response.data && response.data.audits) {
+                setAudits(response.data.audits);
+            }
+        } catch (error) {
+            console.error('Error fetching audits:', error);
+        } finally {
+            setHistoryLoading(false);
+        }
+    };
 
     useEffect(() => {
         const mockModels = [
@@ -130,7 +150,16 @@ const Audits: React.FC = () => {
             }
         };
         fetchPolicies();
+        fetchPolicies();
+        fetchAudits();
     }, []);
+
+    // Refresh audits when tab changes to History
+    useEffect(() => {
+        if (activeTab === 1) {
+            fetchAudits();
+        }
+    }, [activeTab]);
 
     const handleNext = () => setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
     const handleBack = () => setActiveStep((prev) => Math.max(prev - 1, 0));
@@ -1201,8 +1230,161 @@ const Audits: React.FC = () => {
             )}
 
             {activeTab === 1 && (
-                <Box sx={{ py: 12, textAlign: 'center', bgcolor: '#fff', borderRadius: 3, border: '1px solid #f1f5f9' }}>
-                    <Typography color="text.secondary">Your audit history will be listed here.</Typography>
+                <Box sx={{ width: '100%', mt: 2, px: 3 }}>
+                    <Paper
+                        elevation={0}
+                        sx={{
+                            borderRadius: 3,
+                            border: '1px solid #f1f5f9',
+                            bgcolor: '#fff',
+                            p: 3
+                        }}
+                    >
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                            <Box>
+                                <Typography variant="h6" sx={{ fontWeight: 600, color: '#131313' }}>
+                                    Audit History
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#666D73' }}>
+                                    View past audit reports and their compliance status.
+                                </Typography>
+                            </Box>
+                            <Button
+                                startIcon={<RefreshOutlined />}
+                                onClick={fetchAudits}
+                                size="small"
+                                sx={{ textTransform: 'none', color: '#6366f1' }}
+                            >
+                                Refresh
+                            </Button>
+                        </Box>
+
+                        <TableContainer>
+                            <Table sx={{ minWidth: 650 }}>
+                                <TableHead>
+                                    <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                                        <TableCell sx={{ fontWeight: 600, color: '#475569', fontSize: '0.85rem' }}>Audit ID</TableCell>
+                                        <TableCell sx={{ fontWeight: 600, color: '#475569', fontSize: '0.85rem' }}>Model</TableCell>
+                                        <TableCell sx={{ fontWeight: 600, color: '#475569', fontSize: '0.85rem' }}>Date</TableCell>
+                                        <TableCell sx={{ fontWeight: 600, color: '#475569', fontSize: '0.85rem' }}>Status</TableCell>
+                                        <TableCell sx={{ fontWeight: 600, color: '#475569', fontSize: '0.85rem' }}>Compliance Score</TableCell>
+                                        <TableCell align="right" sx={{ fontWeight: 600, color: '#475569', fontSize: '0.85rem' }}>Actions</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {historyLoading ? (
+                                        <TableRow>
+                                            <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                                                <CircularProgress size={24} />
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : audits.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={6} align="center" sx={{ py: 4, color: '#64748b' }}>
+                                                No audit history found.
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        audits.map((audit) => (
+                                            <TableRow
+                                                key={audit.audit_id}
+                                                sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { bgcolor: '#f8fafc' } }}
+                                            >
+                                                <TableCell component="th" scope="row" sx={{ fontSize: '0.85rem', fontFamily: 'monospace', color: '#6366f1' }}>
+                                                    {audit.audit_id.substring(0, 8)}...
+                                                </TableCell>
+                                                <TableCell sx={{ fontSize: '0.85rem', fontWeight: 500 }}>
+                                                    {audit.model_id}
+                                                </TableCell>
+                                                <TableCell sx={{ fontSize: '0.85rem', color: '#64748b' }}>
+                                                    {format(new Date(audit.created_at), 'MMM dd, yyyy HH:mm')}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Box sx={{
+                                                        display: 'inline-flex',
+                                                        px: 1.5,
+                                                        py: 0.5,
+                                                        borderRadius: '12px',
+                                                        fontSize: '0.75rem',
+                                                        fontWeight: 500,
+                                                        bgcolor: audit.status === 'completed' ? '#dcfce7' : '#f1f5f9',
+                                                        color: audit.status === 'completed' ? '#166534' : '#475569',
+                                                        textTransform: 'capitalize'
+                                                    }}>
+                                                        {audit.status}
+                                                    </Box>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <LinearProgress
+                                                            variant="determinate"
+                                                            value={audit.compliance_score}
+                                                            sx={{
+                                                                width: 100,
+                                                                height: 6,
+                                                                borderRadius: 3,
+                                                                bgcolor: '#e2e8f0',
+                                                                '& .MuiLinearProgress-bar': {
+                                                                    bgcolor: audit.compliance_score >= 80 ? '#22c55e' : audit.compliance_score >= 50 ? '#f59e0b' : '#ef4444'
+                                                                }
+                                                            }}
+                                                        />
+                                                        <Typography sx={{ fontSize: '0.85rem', fontWeight: 600 }}>
+                                                            {audit.compliance_score.toFixed(0)}%
+                                                        </Typography>
+                                                    </Box>
+                                                </TableCell>
+                                                <TableCell align="right">
+                                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                                                        <Tooltip title="Download PDF">
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={async () => {
+                                                                    try {
+                                                                        const response = await api.getAuditPDF(audit.audit_id);
+                                                                        const url = window.URL.createObjectURL(new Blob([response.data]));
+                                                                        const link = document.createElement('a');
+                                                                        link.href = url;
+                                                                        link.setAttribute('download', `audit-report-${audit.audit_id}.pdf`);
+                                                                        document.body.appendChild(link);
+                                                                        link.click();
+                                                                        link.remove();
+                                                                    } catch (err) {
+                                                                        console.error("PDF download failed", err);
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <PictureAsPdfIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Button
+                                                            variant="outlined"
+                                                            size="small"
+                                                            onClick={() => {
+                                                                // Load this audit into the results view
+                                                                setAuditResults(audit.audit_data || audit); // Fallback if audit_data not separate
+                                                                setActiveStep(4); // Jump to results step
+                                                                setActiveTab(0); // Go back to Wizard tab to show results
+                                                            }}
+                                                            sx={{
+                                                                textTransform: 'none',
+                                                                fontSize: '0.8rem',
+                                                                borderColor: '#e2e8f0',
+                                                                color: '#475569',
+                                                                '&:hover': { borderColor: '#cbd5e1', bgcolor: '#f8fafc' }
+                                                            }}
+                                                        >
+                                                            View Report
+                                                        </Button>
+                                                    </Box>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Paper>
                 </Box>
             )}
 

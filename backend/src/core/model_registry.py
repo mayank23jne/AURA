@@ -392,6 +392,7 @@ class ModelRegistry:
 
     async def _test_openai(self, model: ModelConfig, prompt: str) -> ModelTestResult:
         """Test OpenAI model"""
+        print('model', prompt)
         api_key = model.api_key or os.getenv("OPENAI_API_KEY")
         if not api_key:
             return ModelTestResult(
@@ -416,9 +417,11 @@ class ModelRegistry:
                 timeout=model.timeout_seconds
             )
 
+            print('modelresponse', response)
             if response.status_code == 200:
                 data = response.json()
                 content = data["choices"][0]["message"]["content"]
+                print('modeldata', content)
                 return ModelTestResult(
                     model_id=model.id,
                     success=True,

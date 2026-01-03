@@ -58,6 +58,7 @@ const Policy: React.FC = () => {
         description: '',
         category: '',
         severity: '',
+        packageId: '',
         version: '',
         active: true,
         rules: '',
@@ -78,6 +79,7 @@ const Policy: React.FC = () => {
         name: '',
         category: '',
         severity: '',
+        packageId: '',
         description: '',
         rules: '',
         references: '',
@@ -102,7 +104,18 @@ const Policy: React.FC = () => {
 
     useEffect(() => {
         fetchPolicies();
+        fetchPackages();
     }, []);
+
+    const [packages, setPackages] = useState<any[]>([]);
+    const fetchPackages = async () => {
+        try {
+            const response = await api.getPackages();
+            setPackages(response.data.packages || []);
+        } catch (error) {
+            console.error('Error fetching packages:', error);
+        }
+    };
 
     const handleGenerate = async () => {
         if (!regulatoryText) return;
@@ -178,6 +191,7 @@ const Policy: React.FC = () => {
                 severity: manualPolicy.severity,
                 version: manualPolicy.version,
                 active: manualPolicy.active,
+                package_id: manualPolicy.packageId || null,
                 rules: parsedRules,
                 regulatory_references: manualPolicy.references ? [manualPolicy.references] : []
             });
@@ -200,6 +214,7 @@ const Policy: React.FC = () => {
             category: policy.category,
             severity: policy.severity || 'medium',
             version: policy.version || '1.0.0',
+            packageId: policy.package_id || '',
             active: policy.active,
             rules: (policy.rules || []).map((r: any) => `${r.text} | ${r.severity}`).join('\n'),
             references: (policy.regulatory_references || []).join(', ')
@@ -218,6 +233,7 @@ const Policy: React.FC = () => {
                 category: editForm.category,
                 severity: editForm.severity,
                 version: editForm.version,
+                package_id: editForm.packageId || null,
                 active: editForm.active,
                 rules: parsedRules,
                 regulatory_references: editForm.references ? editForm.references.split(',').map((r: string) => r.trim()) : []
@@ -279,6 +295,7 @@ const Policy: React.FC = () => {
 
     return (
         <Box sx={{
+            // mt: -2,
             mx: -2,
             mb: -2,
             width: 'calc(100% + 32px)',
@@ -578,12 +595,41 @@ const Policy: React.FC = () => {
                                             }}
                                         >
                                             <MenuItem value="" disabled>Select Category</MenuItem>
-                                            {["Illegal Activities", "Violence", "Financial Fraud", "Self Harm", "Extremism", "Medical", "Legal", "Hate Speech", "Sexual Content", "Privacy", "Hallucination", "Overconfidence"]
+                                            {["Illegal Activities", "Violence", "Financial Fraud", "Self Harm", "Extremism", "Medical", "Legal", "Hate Speech", "Sexual Content", "Privacy", "Hallucination", "Overconfidence",
+                                                "fairness", "privacy", "reliability", "security", "safety", "governance", "transparency", 
+                                            ]
                                                 .map((c) => (
                                                     <MenuItem key={c} value={c}>
                                                         {c}
                                                     </MenuItem>
                                                 ))}
+                                        </TextField>
+                                    </Grid>
+                                    <Grid size={{ xs: 12, md: 6 }}>
+                                        <Typography sx={{ fontSize: '0.8rem', fontWeight: 500, mb: 1, color: '#313131' }}>
+                                            Package
+                                        </Typography>
+                                        <TextField
+                                            select
+                                            fullWidth
+                                            variant="outlined"
+                                            size="small"
+                                            value={manualPolicy.packageId}
+                                            onChange={(e) => handleManualChange('packageId', e.target.value)}
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    fontSize: '0.9rem',
+                                                    '& fieldset': { borderColor: '#E8E8E8' },
+                                                }
+                                            }}
+                                        >
+                                            <MenuItem value="">Select Package</MenuItem>
+                                            {packages.map((pkg: {id: string, name: string, description: string}) => (
+                                                <MenuItem key={pkg.id} value={pkg.id}>
+                                                    {pkg.name}
+                                                </MenuItem>
+                                            ))}
                                         </TextField>
                                     </Grid>
 
@@ -1016,7 +1062,9 @@ const Policy: React.FC = () => {
                                 select fullWidth size="small" value={editForm.category}
                                 onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
                             >
-                                {["Illegal Activities", "Violence", "Financial Fraud", "Self Harm", "Extremism", "Medical", "Legal", "Hate Speech", "Sexual Content", "Privacy", "Hallucination", "Overconfidence"]
+                                {["Illegal Activities", "Violence", "Financial Fraud", "Self Harm", "Extremism", "Medical", "Legal", "Hate Speech", "Sexual Content", "Privacy", "Hallucination", "Overconfidence",
+                                    "fairness", "privacy", "reliability", "security", "safety", "governance",
+                                ]
                                     .map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
                             </TextField>
                         </Grid>
@@ -1030,6 +1078,18 @@ const Policy: React.FC = () => {
                                 <MenuItem value="high">High</MenuItem>
                                 <MenuItem value="medium">Medium</MenuItem>
                                 <MenuItem value="low">Low</MenuItem>
+                            </TextField>
+                        </Grid>
+                        <Grid size={{ xs: 6 }}>
+                            <Typography sx={{ fontSize: '0.8rem', fontWeight: 500, mb: 0.5 }}>Package</Typography>
+                            <TextField
+                                select fullWidth size="small" value={editForm.packageId}
+                                onChange={(e) => setEditForm({ ...editForm, packageId: e.target.value })}
+                            >
+                                <MenuItem value="">Select Package</MenuItem>
+                               {packages.map((pkg: {id: string, name: string, description: string}) => (
+                                    <MenuItem key={pkg.id} value={pkg.id}>{pkg.name}</MenuItem>
+                                ))}
                             </TextField>
                         </Grid>
                         <Grid size={{ xs: 12 }}>

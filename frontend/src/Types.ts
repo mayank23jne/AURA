@@ -56,6 +56,7 @@ export interface Policy {
   category: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
   version: string;
+  package_id: string;
 
   active: boolean;
 

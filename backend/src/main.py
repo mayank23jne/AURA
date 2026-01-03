@@ -494,6 +494,7 @@ class PolicyCreateRequest(BaseModel):
     description: str
     category: str
     severity: str
+    package_id: Optional[str] = None
     rules: List[Dict[str, Any]] = []
     version: str = "1.0.0"
     active: bool = True
@@ -506,6 +507,7 @@ class PolicyUpdateRequest(BaseModel):
     description: Optional[str] = None
     category: Optional[str] = None
     severity: Optional[str] = None
+    package_id: Optional[str] = None
     rules: Optional[List[Dict[str, Any]]] = None
     version: Optional[str] = None
     active: Optional[bool] = None
@@ -534,7 +536,8 @@ async def create_policy(request: PolicyCreateRequest):
         name=request.name,
         description=request.description,
         category=request.category,
-         severity=request.severity,
+        severity=request.severity,
+        package_id=request.package_id,
         rules=request.rules,
         version=request.version,
         active=request.active,
