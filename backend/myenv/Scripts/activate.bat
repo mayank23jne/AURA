@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=D:\project-test\AURA Agentic\AURA-AGENTIC-aura-stable_updated\backend\myenv
+set VIRTUAL_ENV=E:\AURA\backend\myenv
 
 if not defined PROMPT set PROMPT=$P$G
 

@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="D:\project-test\AURA Agentic\AURA-AGENTIC-aura-stable_updated\backend\myenv"
+VIRTUAL_ENV="E:\AURA\backend\myenv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
